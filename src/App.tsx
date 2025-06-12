@@ -36,10 +36,7 @@ function App() {
   }, []);
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error('Sign out error:', error.message);
-  }
+    await supabase.auth.signOut();
   };
 
   if (loading) {
