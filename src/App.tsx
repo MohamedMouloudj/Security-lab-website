@@ -13,6 +13,7 @@ import DOMXSS from './pages/DOMXSS';
 function AppContent() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [signingOut, setSigningOut] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +35,7 @@ function AppContent() {
         
         // Redirect to auth page after sign out
         if (event === 'SIGNED_OUT') {
+          console.log('User signed out, redirecting to auth page');
           navigate('/auth');
         }
       }
@@ -44,21 +46,26 @@ function AppContent() {
 
   const handleSignOut = async () => {
     try {
-      setLoading(true);
+      setSigningOut(true);
+      console.log('Starting sign out process...');
+      
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error('Error signing out:', error);
         alert('Error signing out: ' + error.message);
       } else {
         console.log('Successfully signed out');
+        // Clear user state immediately
         setUser(null);
+        // Navigate to auth page
         navigate('/auth');
       }
     } catch (err) {
       console.error('Unexpected error during sign out:', err);
       alert('Unexpected error during sign out');
     } finally {
-      setLoading(false);
+      setSigningOut(false);
     }
   };
 
@@ -89,11 +96,11 @@ function AppContent() {
                   </div>
                   <button
                     onClick={handleSignOut}
-                    disabled={loading}
+                    disabled={signingOut}
                     className="flex items-center space-x-2 text-white hover:text-indigo-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>{loading ? 'Signing out...' : 'Logout'}</span>
+                    <span>{signingOut ? 'Signing out...' : 'Logout'}</span>
                   </button>
                 </div>
               ) : (
