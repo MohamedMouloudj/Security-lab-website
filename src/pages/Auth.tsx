@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 function Auth() {
@@ -9,38 +9,11 @@ function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  useEffect(() => {
-    // Check for error in URL params
-    const errorParam = searchParams.get('error');
-    if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-    }
-
-    // Check for success message
-    const messageParam = searchParams.get('message');
-    if (messageParam) {
-      setMessage(decodeURIComponent(messageParam));
-    }
-
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
-      }
-    };
-    
-    checkUser();
-  }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setLoading(true);
 
     try {
@@ -64,11 +37,8 @@ function Auth() {
         });
         if (signUpError) throw signUpError;
         
-        setMessage('Registration successful! Please check your email to confirm your account.');
-        setEmail('');
-        setPassword('');
-        setUsername('');
-        setIsLogin(true);
+        // The trigger will automatically create the user record
+        navigate('/');
       }
     } catch (err: any) {
       setError(err.message);
@@ -85,12 +55,6 @@ function Auth() {
         {error && (
           <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">
             {error}
-          </div>
-        )}
-
-        {message && (
-          <div className="bg-green-50 text-green-700 p-3 rounded-md mb-4">
-            {message}
           </div>
         )}
 
@@ -147,11 +111,7 @@ function Auth() {
 
         <div className="mt-4 text-center">
           <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError(null);
-              setMessage(null);
-            }}
+            onClick={() => setIsLogin(!isLogin)}
             className="text-indigo-600 hover:text-indigo-800"
           >
             {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
