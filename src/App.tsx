@@ -4,6 +4,9 @@ import { Shield, AlertTriangle, Lock } from 'lucide-react';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import SQLi from './pages/SQLi';
+import ReflectedXSS from './pages/ReflectedXSS';
+import StoredXSS from './pages/StoredXSS';
+import DOMXSS from './pages/DOMXSS';
 
 function App() {
   return (
@@ -18,7 +21,7 @@ function App() {
                 <h1 className="text-3xl font-bold">CyberTest Lab</h1>
               </Link>
               <div className="flex items-center space-x-6">
-                <Link to="/auth" className="text-white hover:text-indigo-200">Login/Register</Link>
+                <Link to="/auth" className="text-white hover:text-indigo-200 transition-colors">Login/Register</Link>
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="w-6 h-6" />
                   <span className="text-sm">Educational Purposes Only</span>
@@ -45,6 +48,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/sqli" element={<SQLi />} />
+            <Route path="/reflected-xss" element={<ReflectedXSS />} />
+            <Route path="/stored-xss" element={<StoredXSS />} />
+            <Route path="/dom-xss" element={<DOMXSS />} />
           </Routes>
         </main>
 
