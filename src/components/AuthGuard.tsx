@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Shield, AlertTriangle, LogOut } from 'lucide-react';
 
@@ -16,6 +17,7 @@ function AuthGuard({ children }: AuthGuardProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -37,6 +39,13 @@ function AuthGuard({ children }: AuthGuardProps) {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    // Redirect to auth page if user is not logged in and not already on auth page
+    if (!loading && !user && window.location.pathname !== '/auth') {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -52,45 +61,14 @@ function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
+  // If user is not logged in and we're on the auth page, don't render AuthGuard content
+  if (!user && window.location.pathname === '/auth') {
+    return <>{children}</>;
+  }
+
+  // If user is not logged in and not on auth page, the useEffect will handle redirection
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-6">
-            <Shield className="w-16 h-16 text-indigo-600 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-800">CyberTest Lab</h1>
-            <p className="text-gray-600 mt-2">Private Security Testing Environment</p>
-          </div>
-          
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
-              <div>
-                <h3 className="font-medium text-red-800">Access Restricted</h3>
-                <p className="text-sm text-red-700 mt-1">
-                  This is a private security testing environment. Access is restricted to authorized users only.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h3 className="font-medium text-yellow-800 mb-2">⚠️ Disclaimer</h3>
-            <p className="text-sm text-yellow-700">
-              This application contains intentional security vulnerabilities for educational purposes. 
-              It is designed for personal use by the owner only. Unauthorized access or use is prohibited.
-            </p>
-          </div>
-
-          <a
-            href="/auth"
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-center block font-medium"
-          >
-            Sign In
-          </a>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (!isAuthorized) {
